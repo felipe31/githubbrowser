@@ -1,10 +1,10 @@
-# github_browser
+# Github Browser
 
-A new Flutter project.
+A simple project to learn about Flutter.
 
-## Getting Started
+The goal of this project is to search Github users and check out its repositories.
 
-This project is a starting point for a Flutter application.
+## Getting Started with Flutter
 
 A few resources to get you started if this is your first Flutter project:
 
