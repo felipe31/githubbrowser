@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -136,6 +137,7 @@ class GithubUser {
 
 class _MyHomePageState extends State<MyHomePage> {
   String username;
+  Future<GithubUser> response;
 
   void __searchGithub() {
     Toast.show("Write username and press enter", context,
@@ -144,43 +146,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _searchGithub(String name) {
     setState(() {
+      response = fetchUser(name);
+      this.username = name;
       //   // This call to setState tells the Flutter framework that something has
       //   // changed in this State, which causes it to rerun the build method below
       //   // so that the display can reflect the updated values. If we changed
       //   // _counter without calling setState(), then the build method would not be
       //   // called again, and so nothing would appear to happen.
-      this.username = name;
     });
   }
 
-  Widget _getGithubString(String username) {
-    Future<GithubUser> response = fetchUser();
+  //
+  // Widget _getGithubString(String username) {
+  //   try {
+  //     response = fetchUser();
+  //   } catch (e) {}
+  //   return
+  // }
 
-    return FutureBuilder<GithubUser>(
-      future: response,
-      builder: (context, user) {
-        if (user.hasData) {
-          return Row(children: [
-            Image.network(user.data.avatar_url, height: 90),
-            Column(
-              children: [
-                Text(user.data.name),
-                Text("@${user.data.login}"),
-              ],
-            ),
-          ]);
-        } else if (user.hasError) {
-          return Column(children: [Text("Error. User not found!")]);
-        }
-        // By default, show a loading spinner.
-        return CircularProgressIndicator();
-      },
-    );
-  }
-
-  Future<GithubUser> fetchUser() async {
+  Future<GithubUser> fetchUser(String name) async {
+    if (name.isEmpty) throw null;
     http.Response response =
-        await http.get(Uri.https('api.github.com', '/users/$username'));
+        await http.get(Uri.https('api.github.com', '/users/$name'));
     print(response.body);
     if (response.statusCode == 200)
       return GithubUser.fromJson(jsonDecode(response.body));
@@ -231,52 +218,50 @@ class _MyHomePageState extends State<MyHomePage> {
             // the App.build method, and use it to set our appbar title.
             title: Text("Github search"),
           ),
-          body: Center(
-            child: Container(
-              width: 250,
-              // Center is a layout widget. It takes a single child and positions it
-              // in the middle of the parent.
-              child: Column(
-                // Column is also a layout widget. It takes a list of children and
-                // arranges them vertically. By default, it sizes itself to fit its
-                // children horizontally, and tries to be as tall as its parent.
-                //
-                // Invoke "debug painting" (press "p" in the console, choose the
-                // "Toggle Debug Paint" action from the Flutter Inspector in Android
-                // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-                // to see the wireframe for each widget.
-                //
-                // Column has various properties to control how it sizes itself and
-                // how it positions its children. Here we use mainAxisAlignment to
-                // center the children vertically; the main axis here is the vertical
-                // axis because Columns are vertical (the cross axis would be
-                // horizontal).
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: TextField(
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Github username'),
-                      onSubmitted: _searchGithub,
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Column(children: [
-                      _getGithubString(username),
-                    ]),
-                  ),
-                ],
+          body: Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.all(15),
+                // Center is a layout widget. It takes a single child and positions it
+                // in the middle of the parent.
+                child: TextField(
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Github username'),
+                  onSubmitted: _searchGithub,
+                ),
               ),
-            ),
+              Container(
+                  alignment: Alignment.center,
+                  color: Colors.black12,
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                  child: FutureBuilder<GithubUser>(
+                    future: response,
+                    builder: (context, user) {
+                      if (user.hasData) {
+                        return Row(children: [
+                          Padding(
+                            padding: EdgeInsets.all(10),
+                            child:
+                                Image.network(user.data.avatar_url, height: 90),
+                          ),
+                          Column(
+                            children: [
+                              Text(user.data.name,
+                                  style: TextStyle(fontSize: 20)),
+                              Text("@${user.data.login}", style: TextStyle(fontSize: 17, ), textAlign: TextAlign.left),
+                            ],
+                          ),
+                        ]);
+                      } else if (user.hasError) {
+                        return Column(
+                            children: [Text("Error. User not found!")]);
+                      }
+                      return CircularProgressIndicator();
+                    },
+                  )),
+            ],
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: __searchGithub,
-            tooltip: 'Increment',
-            child: Icon(Icons.arrow_forward),
-          ), // This trailing comma makes auto-formatting nicer for build methods.
         ));
   }
 }
