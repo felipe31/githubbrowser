@@ -28,6 +28,7 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
+
 }
 
 class GithubUser {
@@ -136,8 +137,9 @@ class GithubUser {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String username;
-  Future<GithubUser> response;
+  String _username = "";
+  Future<GithubUser> _response;
+  var _controller = TextEditingController();
 
   void __searchGithub() {
     Toast.show("Write username and press enter", context,
@@ -146,13 +148,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _searchGithub(String name) {
     setState(() {
-      response = fetchUser(name);
-      this.username = name;
+      this._username = name;
       //   // This call to setState tells the Flutter framework that something has
       //   // changed in this State, which causes it to rerun the build method below
       //   // so that the display can reflect the updated values. If we changed
       //   // _counter without calling setState(), then the build method would not be
       //   // called again, and so nothing would appear to happen.
+    });
+  }
+
+  void _clear() {
+    setState(() {
+      _controller.clear();
+      _username = "";
     });
   }
 
@@ -178,6 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _response = fetchUser(_username);
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -225,41 +234,72 @@ class _MyHomePageState extends State<MyHomePage> {
                 // Center is a layout widget. It takes a single child and positions it
                 // in the middle of the parent.
                 child: TextField(
+                  controller: _controller,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Github username'),
+                    border: UnderlineInputBorder(),
+                    hintText: 'Github username',
+                    suffixIcon: IconButton(
+                      onPressed: _clear,
+                      icon: Icon(Icons.clear),
+                    ),
+                  ),
                   onSubmitted: _searchGithub,
+                  onChanged: _searchGithub,
                 ),
               ),
               Container(
                   alignment: Alignment.center,
                   color: Colors.black12,
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                  child: FutureBuilder<GithubUser>(
-                    future: response,
-                    builder: (context, user) {
-                      if (user.hasData) {
-                        return Row(children: [
-                          Padding(
-                            padding: EdgeInsets.all(10),
-                            child:
-                                Image.network(user.data.avatar_url, height: 90),
-                          ),
-                          Column(
-                            children: [
-                              Text(user.data.name,
-                                  style: TextStyle(fontSize: 20)),
-                              Text("@${user.data.login}", style: TextStyle(fontSize: 17, ), textAlign: TextAlign.left),
-                            ],
-                          ),
-                        ]);
-                      } else if (user.hasError) {
-                        return Column(
-                            children: [Text("Error. User not found!")]);
-                      }
-                      return CircularProgressIndicator();
-                    },
-                  )),
+                  child: () {
+                    if (_username.isEmpty) return Text("Insert a user name");
+                    return FutureBuilder<GithubUser>(
+                        future: _response,
+                        builder: (context, user) {
+                          if (user.hasData) {
+                            return Row(children: [
+                              Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Image.network(() {
+                                  return user.data.avatar_url != null
+                                      ? user.data.avatar_url
+                                      : "";
+                                }(), height: 90),
+                              ),
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      () {
+                                        return user.data.name != null
+                                            ? user.data.name
+                                            : "";
+                                      }(),
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    Text(
+                                      () {
+                                        return user.data.login != null
+                                            ? "@${user.data.login}"
+                                            : "";
+                                      }(),
+                                      style: TextStyle(
+                                        fontSize: 17,
+                                      ),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]);
+                          } else if (user.hasError) {
+                            return Column(
+                                children: [Text("Error. User not found!")]);
+                          }
+                          return CircularProgressIndicator();
+                        });
+                  }()),
             ],
           ),
         ));
