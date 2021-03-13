@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
@@ -28,7 +29,6 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
-
 }
 
 class GithubUser {
@@ -64,6 +64,7 @@ class GithubUser {
   final int following;
   final String created_at;
   final String updated_at;
+  final bool is_template_user;
 
   GithubUser(
       {this.login,
@@ -97,7 +98,8 @@ class GithubUser {
       this.followers,
       this.following,
       this.created_at,
-      this.updated_at});
+      this.updated_at,
+      this.is_template_user});
 
   factory GithubUser.fromJson(Map<String, dynamic> json) {
     return GithubUser(
@@ -132,7 +134,8 @@ class GithubUser {
         followers: json['followers'],
         following: json['following'],
         created_at: json['created_at'],
-        updated_at: json['updated_at']);
+        updated_at: json['updated_at'],
+        is_template_user: false);
   }
 }
 
@@ -175,13 +178,54 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<GithubUser> fetchUser(String name) async {
     if (name.isEmpty) throw null;
     http.Response response =
-        await http.get(Uri.https('api.github.com', '/users/$name'));
+    // null;
+    await http
+        .get(Uri.https('api.github.com', '/search/users', {"q" : "$name"}));
+    // await http.get(Uri.https('api.github.com', '/users/$name'));
+    print(Uri.https('api.github.com', '/search/users', {"q" : "$name"}));
     print(response.body);
+    print(response.statusCode);
     if (response.statusCode == 200)
-      return GithubUser.fromJson(jsonDecode(response.body));
+      return GithubUser.fromJson(jsonDecode(response.body)['items'][0]);
+    if (response.statusCode == 403)
+      return GithubUser(is_template_user: true);
     else {
       throw Exception('Failed to load github account! Check the username!');
     }
+  }
+
+  Widget buildUserCard({avatarUrl, name, login}) {
+    return Row(children: [
+      Container(
+        decoration: BoxDecoration(
+            // color: Color(0xFF000000),
+            border: Border.all(color: Color(0xff838383), width: 1),
+            borderRadius: BorderRadius.circular(5)),
+        padding: EdgeInsets.all(5),
+        margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+        child: Image.network(
+          avatarUrl,
+          height: 90,
+          width: 90,
+        ),
+      ),
+      Container(
+        alignment: Alignment.topLeft,
+        child: Column(
+          children: [
+            Text(
+              () {
+                return login != null ? "@${login}" : "";
+              }(),
+              style: TextStyle(
+                fontSize: 17,
+              ),
+              textAlign: TextAlign.left,
+            ),
+          ],
+        ),
+      ),
+    ]);
   }
 
   @override
@@ -257,42 +301,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         future: _response,
                         builder: (context, user) {
                           if (user.hasData) {
-                            return Row(children: [
-                              Padding(
-                                padding: EdgeInsets.all(10),
-                                child: Image.network(() {
-                                  return user.data.avatar_url != null
-                                      ? user.data.avatar_url
-                                      : "";
-                                }(), height: 90),
-                              ),
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      () {
-                                        return user.data.name != null
-                                            ? user.data.name
-                                            : "";
-                                      }(),
-                                      style: TextStyle(fontSize: 20),
-                                    ),
-                                    Text(
-                                      () {
-                                        return user.data.login != null
-                                            ? "@${user.data.login}"
-                                            : "";
-                                      }(),
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ]);
+                            if (user.data.is_template_user) {
+                              return buildUserCard(
+                                  avatarUrl: "https://avatars.githubusercontent.com/u/1024025?v=4",
+                                  login: "dollynho");
+                            } else {
+                              return buildUserCard(
+                                  avatarUrl: user.data.avatar_url,
+                                  login: user.data.login);
+                            }
                           } else if (user.hasError) {
                             return Column(
                                 children: [Text("Error. User not found!")]);
