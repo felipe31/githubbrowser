@@ -175,8 +175,9 @@ class _MyHomePageState extends State<MyHomePage> {
   //   return
   // }
 
-  Future<GithubUser> fetchUser(String name) async {
+  Future<GithubUser> fetchUser(String name, {bool debug}) async {
     if (name.isEmpty) throw null;
+    if (debug) return GithubUser(is_template_user: true);
     http.Response response =
     // null;
     await http
@@ -230,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _response = fetchUser(_username);
+    _response = fetchUser(_username, debug: true);
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
