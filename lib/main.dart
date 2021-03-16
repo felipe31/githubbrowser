@@ -1,12 +1,8 @@
-import 'dart:convert';
-import 'dart:developer';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+import 'package:github_browser/model/github_user_list.dart';
 import 'package:toast/toast.dart';
 
 void main() {
@@ -31,117 +27,9 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class GithubUser {
-  final String login;
-  final int id;
-  final String node_id;
-  final String avatar_url;
-  final String gravatar_id;
-  final String url;
-  final String html_url;
-  final String followers_url;
-  final String following_url;
-  final String gists_url;
-  final String starred_url;
-  final String subscriptions_url;
-  final String organizations_url;
-  final String repos_url;
-  final String events_url;
-  final String received_events_url;
-  final String type;
-  final bool site_admin;
-  final String name;
-  final String company;
-  final String blog;
-  final String location;
-  final String email;
-  final bool hireable;
-  final String bio;
-  final String twitter_username;
-  final int public_repos;
-  final int public_gists;
-  final int followers;
-  final int following;
-  final String created_at;
-  final String updated_at;
-  final bool is_template_user;
-
-  GithubUser(
-      {this.login,
-      this.id,
-      this.node_id,
-      this.avatar_url,
-      this.gravatar_id,
-      this.url,
-      this.html_url,
-      this.followers_url,
-      this.following_url,
-      this.gists_url,
-      this.starred_url,
-      this.subscriptions_url,
-      this.organizations_url,
-      this.repos_url,
-      this.events_url,
-      this.received_events_url,
-      this.type,
-      this.site_admin,
-      this.name,
-      this.company,
-      this.blog,
-      this.location,
-      this.email,
-      this.hireable,
-      this.bio,
-      this.twitter_username,
-      this.public_repos,
-      this.public_gists,
-      this.followers,
-      this.following,
-      this.created_at,
-      this.updated_at,
-      this.is_template_user});
-
-  factory GithubUser.fromJson(Map<String, dynamic> json) {
-    return GithubUser(
-        login: json['login'],
-        id: json['id'],
-        node_id: json['node_id'],
-        avatar_url: json['avatar_url'],
-        gravatar_id: json['gravatar_id'],
-        url: json['url'],
-        html_url: json['html_url'],
-        followers_url: json['followers_url'],
-        following_url: json['following_url'],
-        gists_url: json['gists_url'],
-        starred_url: json['starred_url'],
-        subscriptions_url: json['subscriptions_url'],
-        organizations_url: json['organizations_url'],
-        repos_url: json['repos_url'],
-        events_url: json['events_url'],
-        received_events_url: json['received_events_url'],
-        type: json['type'],
-        site_admin: json['site_admin'],
-        name: json['name'],
-        company: json['company'],
-        blog: json['blog'],
-        location: json['location'],
-        email: json['email'],
-        hireable: json['hireable'],
-        bio: json['bio'],
-        twitter_username: json['twitter_username'],
-        public_repos: json['public_repos'],
-        public_gists: json['public_gists'],
-        followers: json['followers'],
-        following: json['following'],
-        created_at: json['created_at'],
-        updated_at: json['updated_at'],
-        is_template_user: false);
-  }
-}
-
 class _MyHomePageState extends State<MyHomePage> {
   String _username = "";
-  Future<GithubUser> _response;
+  Future<GithubUserList> _response;
   var _controller = TextEditingController();
 
   void __searchGithub() {
@@ -167,32 +55,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  //
-  // Widget _getGithubString(String username) {
-  //   try {
-  //     response = fetchUser();
-  //   } catch (e) {}
-  //   return
-  // }
-
-  Future<GithubUser> fetchUser(String name, {bool debug}) async {
+  Future<GithubUserList> fetchUser(String name, {bool debug}) async {
     if (name.isEmpty) throw null;
-    if (debug) return GithubUser(is_template_user: true);
-    http.Response response =
-    // null;
-    await http
-        .get(Uri.https('api.github.com', '/search/users', {"q" : "$name"}));
-    // await http.get(Uri.https('api.github.com', '/users/$name'));
-    print(Uri.https('api.github.com', '/search/users', {"q" : "$name"}));
-    print(response.body);
-    print(response.statusCode);
-    if (response.statusCode == 200)
-      return GithubUser.fromJson(jsonDecode(response.body)['items'][0]);
-    if (response.statusCode == 403)
-      return GithubUser(is_template_user: true);
-    else {
-      throw Exception('Failed to load github account! Check the username!');
-    }
+    if (debug) return GithubUserList.fetchUsers(name, debug: true);
+    return GithubUserList.fetchUsers(name);
   }
 
   Widget buildUserCard({avatarUrl, name, login}) {
@@ -298,18 +164,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                   child: () {
                     if (_username.isEmpty) return Text("Insert a user name");
-                    return FutureBuilder<GithubUser>(
+                    return FutureBuilder<GithubUserList>(
                         future: _response,
                         builder: (context, user) {
                           if (user.hasData) {
-                            if (user.data.is_template_user) {
+                            if (user.data.githubUserList.first.isTemplateUser) {
                               return buildUserCard(
-                                  avatarUrl: "https://avatars.githubusercontent.com/u/1024025?v=4",
+                                  avatarUrl:
+                                      "https://avatars.githubusercontent.com/u/1024025?v=4",
                                   login: "dollynho");
                             } else {
                               return buildUserCard(
-                                  avatarUrl: user.data.avatar_url,
-                                  login: user.data.login);
+                                  avatarUrl:
+                                      user.data.githubUserList.first.avatarUrl,
+                                  login: user.data.githubUserList.first.login);
                             }
                           } else if (user.hasError) {
                             return Column(
