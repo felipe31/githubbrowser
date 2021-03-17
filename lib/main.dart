@@ -45,6 +45,8 @@ class _MyHomePageState extends State<MyHomePage> {
       //   // so that the display can reflect the updated values. If we changed
       //   // _counter without calling setState(), then the build method would not be
       //   // called again, and so nothing would appear to happen.
+      print("inside searchGithub");
+      _response = fetchUser(_username, debug: false);
     });
   }
 
@@ -55,10 +57,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<GithubUserList> fetchUser(String name, {bool debug}) async {
+  Future<GithubUserList> fetchUser(String name, {bool debug = false}) async {
     if (name.isEmpty) throw null;
-    if (debug) return GithubUserList.fetchUsers(name, debug: true);
-    return GithubUserList.fetchUsers(name);
+    return GithubUserList.fetchUsers(name, debug: debug);
   }
 
   Widget buildUserCard({avatarUrl, name, login}) {
@@ -97,7 +98,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _response = fetchUser(_username, debug: true);
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
