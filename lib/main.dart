@@ -63,37 +63,39 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget buildUserCard({avatarUrl, name, login}) {
-    return Row(children: [
-      Container(
-        decoration: BoxDecoration(
-            // color: Color(0xFF000000),
-            border: Border.all(color: Color(0xff838383), width: 1),
-            borderRadius: BorderRadius.circular(5)),
-        padding: EdgeInsets.all(5),
-        margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-        child: Image.network(
-          avatarUrl,
-          height: 90,
-          width: 90,
-        ),
-      ),
-      Container(
-        alignment: Alignment.topLeft,
-        child: Column(
-          children: [
-            Text(
-              () {
-                return login != null ? "@${login}" : "";
-              }(),
-              style: TextStyle(
-                fontSize: 17,
-              ),
-              textAlign: TextAlign.left,
+    return Container(
+        height: 100,
+        child: Row(children: [
+          Container(
+            decoration: BoxDecoration(
+              // color: Color(0xFF000000),
+                border: Border.all(color: Color(0xff838383), width: 1),
+                borderRadius: BorderRadius.circular(5)),
+            padding: EdgeInsets.all(5),
+            margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+            child: Image.network(
+              avatarUrl,
+              height: 90,
+              width: 90,
             ),
-          ],
-        ),
-      ),
-    ]);
+          ),
+          Container(
+            alignment: Alignment.topLeft,
+            child: Column(
+              children: [
+                Text(
+                      () {
+                    return login != null ? "@${login}" : "";
+                  }(),
+                  style: TextStyle(
+                    fontSize: 17,
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+              ],
+            ),
+          ),
+        ]));
   }
 
   @override
@@ -164,27 +166,51 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                   child: () {
                     if (_username.isEmpty) return Text("Insert a user name");
-                    return FutureBuilder<GithubUserList>(
-                        future: _response,
-                        builder: (context, user) {
-                          if (user.hasData) {
-                            if (user.data.githubUserList.first.isTemplateUser) {
-                              return buildUserCard(
-                                  avatarUrl:
-                                      "https://avatars.githubusercontent.com/u/1024025?v=4",
-                                  login: "dollynho");
-                            } else {
-                              return buildUserCard(
-                                  avatarUrl:
-                                      user.data.githubUserList.first.avatarUrl,
-                                  login: user.data.githubUserList.first.login);
-                            }
-                          } else if (user.hasError) {
-                            return Column(
-                                children: [Text("Error. User not found!")]);
-                          }
-                          return CircularProgressIndicator();
-                        });
+                    return SizedBox(
+                        height: 300.0,
+                        child: FutureBuilder<GithubUserList>(
+                            future: _response,
+                            builder: (context, user) {
+                              if (user.hasData) {
+                                if (user.data.githubUserList.first
+                                    .isTemplateUser) {
+                                  return ListView.builder(
+                                      itemCount: user.data.totalCount,
+                                      itemBuilder: (context, index) {
+                                        print("index $index");
+                                        return buildUserCard(
+                                            avatarUrl:
+                                            "https://avatars.githubusercontent.com/u/1024025?v=4",
+                                            login: "dollynho");
+                                      });
+                                } else {
+                                  // TODO go back to the top of the list when textfield is edited
+                                  return ListView.builder(
+                                      itemCount: user.data.totalCount,
+                                      itemBuilder: (context, index) {
+                                        print("index $index");
+                                        print("total ${user.data.totalCount}");
+                                        return buildUserCard(
+                                            avatarUrl:
+                                            user.data.githubUserList
+                                                .elementAt(index)
+                                                .avatarUrl,
+                                            login: user.data.githubUserList
+                                                .elementAt(index)
+                                                .login);
+                                        //   ListTile(
+                                        //   title: Text(
+                                        //       user.data.githubUserList.first.login),
+                                        // );
+                                      });
+                                }
+                              } else if (user.hasError) {
+                                return Column(
+                                    children: [Text("Error. User not found!")]);
+                              }
+                              return CircularProgressIndicator();
+                            })
+                    );
                   }()),
             ],
           ),
