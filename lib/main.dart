@@ -81,19 +81,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: 80,
                 ),
               )),
-          Container(
-            // color: Color(0xFFFFFFFFFF),
-            alignment: Alignment.center,
-            child: Text(
-              () {
-                return login != null ? "@${login}" : "";
-              }(),
-              style: TextStyle(
-                fontSize: 17,
-              ),
-              textAlign: TextAlign.left,
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    child: Text(
+                      () {
+                        return login != null ? "@${login}" : "";
+                      }(),
+                      style: TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ),
+                OutlinedButton(
+                  child: Text("Repos"),
+                ),
+              ],
             ),
           ),
+          // ),
         ]));
   }
 
@@ -161,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Container(
                   alignment: Alignment.center,
-                  color: Colors.black12,
+                  // color: Color(0xFFeeeeee),
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                   child: () {
                     if (_username.isEmpty) return Text("Insert a user name");
@@ -173,7 +182,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               if (user.hasData) {
                                 if (user
                                     .data.githubUserList.first.isTemplateUser) {
-                                  return ListView.builder(
+                                  return ListView.separated(
+                                      separatorBuilder: (BuildContext context, int index) => Divider(),
                                       itemCount: user.data.totalCount,
                                       itemBuilder: (context, index) {
                                         print("index $index");
@@ -184,7 +194,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                       });
                                 } else {
                                   // TODO go back to the top of the list when textfield is edited
-                                  return ListView.builder(
+                                  return ListView.separated(
+                                  separatorBuilder: (BuildContext context, int index) => Divider(),
                                       itemCount: user.data.totalCount,
                                       itemBuilder: (context, index) {
                                         print("index $index");
