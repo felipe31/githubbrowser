@@ -126,9 +126,10 @@ class _MyHomePageState extends State<MyHomePage> {
           // or simply save your changes to "hot reload" in a Flutter IDE).
           // Notice that the counter didn't reset back to zero; the application
           // is not restarted.
-          canvasColor: Color(0xFFe1e1e1e1),
+          // canvasColor: Color(0xFFe1e1e1e1),
+          canvasColor: Color(0xFFfefefefe),
           primarySwatch: MaterialColor(
-            0xFF313131,
+            0xFF212121,
             <int, Color>{
               50: Color(0xFF000000),
               100: Color(0xFF000000),
@@ -145,6 +146,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         home: Scaffold(
           appBar: AppBar(
+            // backgroundColor: Colors.blueGrey,
+            brightness: Brightness.dark,
             // Here we take the value from the MyHomePage object that was created by
             // the App.build method, and use it to set our appbar title.
             title: Text("Github search"),
