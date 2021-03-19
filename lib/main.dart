@@ -67,32 +67,31 @@ class _MyHomePageState extends State<MyHomePage> {
         height: 100,
         child: Row(children: [
           Container(
-            decoration: BoxDecoration(
-              // color: Color(0xFF000000),
-                border: Border.all(color: Color(0xff838383), width: 1),
-                borderRadius: BorderRadius.circular(5)),
-            padding: EdgeInsets.all(5),
-            margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
-            child: Image.network(
-              avatarUrl,
-              height: 90,
-              width: 90,
-            ),
-          ),
-          Container(
-            alignment: Alignment.topLeft,
-            child: Column(
-              children: [
-                Text(
-                      () {
-                    return login != null ? "@${login}" : "";
-                  }(),
-                  style: TextStyle(
-                    fontSize: 17,
-                  ),
-                  textAlign: TextAlign.left,
+              decoration: BoxDecoration(
+                  color: Color(0xFFFFFFFFFF),
+                  border: Border.all(color: Color(0xff838383), width: 1),
+                  borderRadius: BorderRadius.circular(45)),
+              padding: EdgeInsets.all(3),
+              margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(45.0),
+                child: Image.network(
+                  avatarUrl,
+                  height: 80,
+                  width: 80,
                 ),
-              ],
+              )),
+          Container(
+            // color: Color(0xFFFFFFFFFF),
+            alignment: Alignment.center,
+            child: Text(
+              () {
+                return login != null ? "@${login}" : "";
+              }(),
+              style: TextStyle(
+                fontSize: 17,
+              ),
+              textAlign: TextAlign.left,
             ),
           ),
         ]));
@@ -172,15 +171,15 @@ class _MyHomePageState extends State<MyHomePage> {
                             future: _response,
                             builder: (context, user) {
                               if (user.hasData) {
-                                if (user.data.githubUserList.first
-                                    .isTemplateUser) {
+                                if (user
+                                    .data.githubUserList.first.isTemplateUser) {
                                   return ListView.builder(
                                       itemCount: user.data.totalCount,
                                       itemBuilder: (context, index) {
                                         print("index $index");
                                         return buildUserCard(
                                             avatarUrl:
-                                            "https://avatars.githubusercontent.com/u/1024025?v=4",
+                                                "https://avatars.githubusercontent.com/u/1024025?v=4",
                                             login: "dollynho");
                                       });
                                 } else {
@@ -191,8 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         print("index $index");
                                         print("total ${user.data.totalCount}");
                                         return buildUserCard(
-                                            avatarUrl:
-                                            user.data.githubUserList
+                                            avatarUrl: user.data.githubUserList
                                                 .elementAt(index)
                                                 .avatarUrl,
                                             login: user.data.githubUserList
@@ -209,8 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children: [Text("Error. User not found!")]);
                               }
                               return CircularProgressIndicator();
-                            })
-                    );
+                            }));
                   }()),
             ],
           ),
