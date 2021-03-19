@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget buildUserCard({avatarUrl, name, login}) {
     return Container(
+        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
         height: 100,
         child: Row(children: [
           Container(
@@ -72,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   border: Border.all(color: Color(0xff838383), width: 1),
                   borderRadius: BorderRadius.circular(45)),
               padding: EdgeInsets.all(3),
-              margin: EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+              margin: EdgeInsets.only(right: 10),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(45.0),
                 child: Image.network(
@@ -168,22 +169,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   onChanged: _searchGithub,
                 ),
               ),
-              Container(
-                  alignment: Alignment.center,
-                  // color: Color(0xFFeeeeee),
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+              Expanded(
                   child: () {
                     if (_username.isEmpty) return Text("Insert a user name");
-                    return SizedBox(
-                        height: 300.0,
-                        child: FutureBuilder<GithubUserList>(
-                            future: _response,
+                    return  FutureBuilder<GithubUserList>(
+                            future:
+                            //Future.delayed(Duration(seconds: 5)),
+                             _response,
                             builder: (context, user) {
                               if (user.hasData) {
                                 if (user
                                     .data.githubUserList.first.isTemplateUser) {
                                   return ListView.separated(
-                                      separatorBuilder: (BuildContext context, int index) => Divider(),
+                                      separatorBuilder:
+                                          (BuildContext context, int index) =>
+                                              Divider(),
                                       itemCount: user.data.totalCount,
                                       itemBuilder: (context, index) {
                                         print("index $index");
@@ -195,7 +195,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                 } else {
                                   // TODO go back to the top of the list when textfield is edited
                                   return ListView.separated(
-                                  separatorBuilder: (BuildContext context, int index) => Divider(),
+                                      separatorBuilder:
+                                          (BuildContext context, int index) =>
+                                              Divider(),
                                       itemCount: user.data.totalCount,
                                       itemBuilder: (context, index) {
                                         print("index $index");
@@ -217,8 +219,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                 return Column(
                                     children: [Text("Error. User not found!")]);
                               }
-                              return CircularProgressIndicator();
-                            }));
+                              return ListView.separated(
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          Divider(),
+                                  itemCount: 100,
+                                  itemBuilder: (context, index) {
+                                    return Center( child:Container(
+                                        padding: EdgeInsets.symmetric(vertical: 10, horizontal:10),
+                                        width: 90,
+                                        height: 90,
+                                        child:CircularProgressIndicator()));
+                                  });
+                            });
                   }()),
             ],
           ),
