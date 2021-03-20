@@ -33,6 +33,10 @@ class GithubUserList {
 
       return json.then((Map<String, dynamic> json) {
         print("->>>>>> ${json["total_count"]}");
+        if(json["total_count"] == 0) {
+          print("user not found");
+          return GithubUserList([GithubUser(isUserNotFound: true)], 1);
+        }
         List<dynamic> list = json["items"];
         List<GithubUser> users = <GithubUser>[];
         int count = 0;

@@ -97,9 +97,45 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
+                Container(
+                  margin: EdgeInsets.only(right:10),
+                  child:
                 OutlinedButton(
+                  style: ButtonStyle(
+                    elevation: MaterialStateProperty.all(5),
+                    foregroundColor:
+                        MaterialStateProperty.resolveWith((states) {
+                      const Set<MaterialState> interactiveStates =
+                          <MaterialState>{
+                        MaterialState.pressed,
+                        MaterialState.hovered,
+                        MaterialState.focused,
+                      };
+                      if (states.any(interactiveStates.contains)) {
+                        return Colors.black;
+                      }
+                      return Colors.white;
+                    }),
+
+                    // enableFeedback: true,
+                    // animationDuration: Duration(seconds: 5),
+                    backgroundColor:
+                        MaterialStateProperty.resolveWith((states) {
+                      const Set<MaterialState> interactiveStates =
+                          <MaterialState>{
+                        MaterialState.pressed,
+                        MaterialState.hovered,
+                        MaterialState.focused,
+                      };
+                      if (states.any(interactiveStates.contains)) {
+                        return Colors.white;
+                      }
+                      return Colors.black;
+                    }),
+                  ),
                   child: Text("Repos"),
-                ),
+                  onPressed: () {},
+                ),),
               ],
             ),
           ),
@@ -172,70 +208,70 @@ class _MyHomePageState extends State<MyHomePage> {
                   onChanged: _searchGithub,
                 ),
               ),
-              Expanded(
-                  child: () {
-                    if (_username.isEmpty) return Text("Insert a user name");
-                    return  FutureBuilder<GithubUserList>(
-                            future:
-                            //Future.delayed(Duration(seconds: 5)),
-                             _response,
-                            builder: (context, user) {
-                              if (user.hasData) {
-                                if (user
-                                    .data.githubUserList.first.isTemplateUser) {
-                                  return ListView.separated(
-                                      separatorBuilder:
-                                          (BuildContext context, int index) =>
-                                              Divider(),
-                                      itemCount: user.data.totalCount,
-                                      itemBuilder: (context, index) {
-                                        print("index $index");
-                                        return buildUserCard(
-                                            avatarUrl:
-                                                "https://avatars.githubusercontent.com/u/1024025?v=4",
-                                            login: "dollynho");
-                                      });
-                                } else {
-                                  // TODO go back to the top of the list when textfield is edited
-                                  return ListView.separated(
-                                      separatorBuilder:
-                                          (BuildContext context, int index) =>
-                                              Divider(),
-                                      itemCount: user.data.totalCount,
-                                      itemBuilder: (context, index) {
-                                        print("index $index");
-                                        print("total ${user.data.totalCount}");
-                                        return buildUserCard(
-                                            avatarUrl: user.data.githubUserList
-                                                .elementAt(index)
-                                                .avatarUrl,
-                                            login: user.data.githubUserList
-                                                .elementAt(index)
-                                                .login);
-                                        //   ListTile(
-                                        //   title: Text(
-                                        //       user.data.githubUserList.first.login),
-                                        // );
-                                      });
-                                }
-                              } else if (user.hasError) {
-                                return Column(
-                                    children: [Text("Error. User not found!")]);
-                              }
-                              return ListView.separated(
-                                  separatorBuilder:
-                                      (BuildContext context, int index) =>
-                                          Divider(),
-                                  itemCount: 100,
-                                  itemBuilder: (context, index) {
-                                    return Center( child:Container(
-                                        padding: EdgeInsets.symmetric(vertical: 10, horizontal:10),
-                                        width: 90,
-                                        height: 90,
-                                        child:CircularProgressIndicator()));
-                                  });
-                            });
-                  }()),
+              Expanded(child: () {
+                if (_username.isEmpty) return Text("Insert a user name");
+                return FutureBuilder<GithubUserList>(
+                    future:
+                        //Future.delayed(Duration(seconds: 5)),
+                        _response,
+                    builder: (context, user) {
+                      if (user.hasData) {
+                        if (user.data.githubUserList.first.isTemplateUser ||
+                            user.data.githubUserList.first.isUserNotFound) {
+                          return ListView.separated(
+                              separatorBuilder:
+                                  (BuildContext context, int index) =>
+                                      Divider(),
+                              itemCount: user.data.totalCount,
+                              itemBuilder: (context, index) {
+                                print("index $index");
+                                return buildUserCard(
+                                    avatarUrl:
+                                        "https://avatars.githubusercontent.com/u/1024025?v=4",
+                                    login: "dollynho");
+                              });
+                        } else {
+                          // TODO go back to the top of the list when textfield is edited
+                          return ListView.separated(
+                              separatorBuilder:
+                                  (BuildContext context, int index) =>
+                                      Divider(),
+                              itemCount: user.data.totalCount,
+                              itemBuilder: (context, index) {
+                                print("index $index");
+                                print("total ${user.data.totalCount}");
+                                return buildUserCard(
+                                    avatarUrl: user.data.githubUserList
+                                        .elementAt(index)
+                                        .avatarUrl,
+                                    login: user.data.githubUserList
+                                        .elementAt(index)
+                                        .login);
+                                //   ListTile(
+                                //   title: Text(
+                                //       user.data.githubUserList.first.login),
+                                // );
+                              });
+                        }
+                      } else if (user.hasError) {
+                        return Column(
+                            children: [Text("Error. User not found!")]);
+                      }
+                      return ListView.separated(
+                          separatorBuilder: (BuildContext context, int index) =>
+                              Divider(),
+                          itemCount: 100,
+                          itemBuilder: (context, index) {
+                            return Center(
+                                child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 10),
+                                    width: 90,
+                                    height: 90,
+                                    child: CircularProgressIndicator()));
+                          });
+                    });
+              }()),
             ],
           ),
         ));

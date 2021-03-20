@@ -69,8 +69,8 @@ class GithubUser {
       this.following,
       this.createdAt,
       this.updatedAt,
-      this.isTemplateUser,
-      this.isUserNotFound});
+      this.isTemplateUser = false,
+      this.isUserNotFound = false});
 
   factory GithubUser.fromJson(Map<String, dynamic> json) {
     return GithubUser(
