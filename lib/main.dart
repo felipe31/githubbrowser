@@ -98,44 +98,44 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(right:10),
-                  child:
-                OutlinedButton(
-                  style: ButtonStyle(
-                    elevation: MaterialStateProperty.all(5),
-                    foregroundColor:
-                        MaterialStateProperty.resolveWith((states) {
-                      const Set<MaterialState> interactiveStates =
-                          <MaterialState>{
-                        MaterialState.pressed,
-                        MaterialState.hovered,
-                        MaterialState.focused,
-                      };
-                      if (states.any(interactiveStates.contains)) {
-                        return Colors.black;
-                      }
-                      return Colors.white;
-                    }),
-
-                    // enableFeedback: true,
-                    // animationDuration: Duration(seconds: 5),
-                    backgroundColor:
-                        MaterialStateProperty.resolveWith((states) {
-                      const Set<MaterialState> interactiveStates =
-                          <MaterialState>{
-                        MaterialState.pressed,
-                        MaterialState.hovered,
-                        MaterialState.focused,
-                      };
-                      if (states.any(interactiveStates.contains)) {
+                  margin: EdgeInsets.only(right: 10),
+                  child: OutlinedButton(
+                    style: ButtonStyle(
+                      elevation: MaterialStateProperty.all(5),
+                      foregroundColor:
+                          MaterialStateProperty.resolveWith((states) {
+                        const Set<MaterialState> interactiveStates =
+                            <MaterialState>{
+                          MaterialState.pressed,
+                          MaterialState.hovered,
+                          MaterialState.focused,
+                        };
+                        if (states.any(interactiveStates.contains)) {
+                          return Colors.black;
+                        }
                         return Colors.white;
-                      }
-                      return Colors.black;
-                    }),
+                      }),
+
+                      // enableFeedback: true,
+                      // animationDuration: Duration(seconds: 5),
+                      backgroundColor:
+                          MaterialStateProperty.resolveWith((states) {
+                        const Set<MaterialState> interactiveStates =
+                            <MaterialState>{
+                          MaterialState.pressed,
+                          MaterialState.hovered,
+                          MaterialState.focused,
+                        };
+                        if (states.any(interactiveStates.contains)) {
+                          return Colors.white;
+                        }
+                        return Colors.black;
+                      }),
+                    ),
+                    child: Text("Repos"),
+                    onPressed: () {},
                   ),
-                  child: Text("Repos"),
-                  onPressed: () {},
-                ),),
+                ),
               ],
             ),
           ),
@@ -216,8 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         _response,
                     builder: (context, user) {
                       if (user.hasData) {
-                        if (user.data.githubUserList.first.isTemplateUser ||
-                            user.data.githubUserList.first.isUserNotFound) {
+                        if (user.data.githubUserList.first.isTemplateUser) {
                           return ListView.separated(
                               separatorBuilder:
                                   (BuildContext context, int index) =>
@@ -230,6 +229,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                         "https://avatars.githubusercontent.com/u/1024025?v=4",
                                     login: "dollynho");
                               });
+                        } else if (user
+                            .data.githubUserList.first.isUserNotFound) {
+                          return Text("User not found!");
                         } else {
                           // TODO go back to the top of the list when textfield is edited
                           return ListView.separated(
@@ -255,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         }
                       } else if (user.hasError) {
                         return Column(
-                            children: [Text("Error. User not found!")]);
+                            children: [Text("Error. Try again!")]);
                       }
                       return ListView.separated(
                           separatorBuilder: (BuildContext context, int index) =>
