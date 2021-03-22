@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:github_browser/model/github_user_list.dart';
+import 'package:github_browser/view/user_repos.dart';
 import 'package:toast/toast.dart';
 
 void main() {
@@ -108,6 +109,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     child: Text("Repos"),
                     onPressed: () {
+                      return Navigator.push(
+                        _scaffoldKey.currentContext,
+                        MaterialPageRoute(builder: (context) => UsersRepos()),
+                      );
                       final snackBar = SnackBar(
                         content: Text('Temporarily unavailable!'),
                         // action: SnackBarAction(
