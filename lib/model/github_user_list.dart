@@ -13,13 +13,6 @@ class GithubUserList {
 
   GithubUserList(this._githubUserList, this.totalCount);
 
-  // factory GithubUserList.fromJson(Map<String, dynamic> json) {
-  //   List<GithubUser> users = <GithubUser>[];
-  //   json.forEach((key, value) {
-  //     users.add(GithubUser())
-  //   })
-  // }
-
   static Future<GithubUserList> fetchUsers(String name,
       {bool debug = false}) async {
     if (name.isEmpty) throw null;
