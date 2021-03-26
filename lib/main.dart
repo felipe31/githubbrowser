@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:github_browser/model/github_user.dart';
 import 'package:github_browser/model/github_user_list.dart';
 import 'package:github_browser/view/user_repos.dart';
 import 'package:toast/toast.dart';
@@ -40,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Widget buildUserCard({avatarUrl, name, login}) {
+  Widget buildUserCard(user) {
     return Container(
         padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
         height: 100,
@@ -55,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(45.0),
                 child: Image.network(
-                  avatarUrl,
+                  user.avatarUrl,
                   height: 80,
                   width: 80,
                 ),
@@ -67,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Container(
                     child: Text(
                       () {
-                        return login != null ? "@${login}" : "";
+                        return user.login != null ? "@${user.login}" : "";
                       }(),
                       style: TextStyle(
                         fontSize: 17,
@@ -111,7 +112,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       return Navigator.push(
                         _scaffoldKey.currentContext,
-                        MaterialPageRoute(builder: (context) => UsersRepos()),
+                        MaterialPageRoute(
+                            builder: (context) => UsersRepos(user)),
                       );
                       final snackBar = SnackBar(
                         content: Text('Temporarily unavailable!'),
@@ -126,7 +128,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       // Find the ScaffoldMessenger in the widget tree
                       // and use it to show a SnackBar.
 
-                      ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(snackBar);
+                      ScaffoldMessenger.of(_scaffoldKey.currentContext)
+                          .showSnackBar(snackBar);
                     },
                   ),
                 ),
@@ -196,10 +199,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               itemCount: user.data.totalCount,
                               itemBuilder: (context, index) {
                                 print("index $index");
-                                return buildUserCard(
+                                return buildUserCard(GithubUser(
                                     avatarUrl:
                                         "https://avatars.githubusercontent.com/u/1024025?v=4",
-                                    login: "dollynho");
+                                    login: "dollynho"));
                               });
                         } else if (user
                             .data.githubUserList.first.isUserNotFound) {
@@ -215,12 +218,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 print("index $index");
                                 print("total ${user.data.totalCount}");
                                 return buildUserCard(
-                                    avatarUrl: user.data.githubUserList
-                                        .elementAt(index)
-                                        .avatarUrl,
-                                    login: user.data.githubUserList
-                                        .elementAt(index)
-                                        .login);
+                                    user.data.githubUserList.elementAt(index));
                               });
                         }
                       } else if (user.hasError) {
