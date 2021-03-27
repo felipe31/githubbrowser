@@ -14,9 +14,27 @@ class GithubApi {
     if (response.statusCode == 200)
       return jsonDecode(response.body);
     else if (response.statusCode == 403)
-      return throw 403;
+      throw 403;
     else if (response.statusCode == 404)
-      return throw 404;
+      throw 404;
+    else {
+      throw Exception('Failed to load github account! Check the username!');
+    }
+  }
+
+  static Future<List<dynamic>> fetchRepoList(String url) async {
+    if (url.isEmpty) throw null;
+    http.Response response = await http
+        .get(Uri.parse(url));
+    print(Uri.parse(url));
+    print(response.body);
+    print(response.statusCode);
+    if (response.statusCode == 200)
+      return jsonDecode(response.body);
+    else if (response.statusCode == 403)
+      throw 403;
+    else if (response.statusCode == 404)
+      throw 404;
     else {
       throw Exception('Failed to load github account! Check the username!');
     }
