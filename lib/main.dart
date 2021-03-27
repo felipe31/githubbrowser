@@ -189,14 +189,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (_username.isEmpty) return Text("Insert a user name");
                 return FutureBuilder<GithubUserList>(
                     future: _response,
-                    builder: (context, user) {
-                      if (user.hasData) {
-                        if (user.data.githubUserList.first.isTemplateUser) {
+                    builder: (context, userList) {
+                      if (userList.hasData) {
+                        if (userList.data.githubUserList.first.isTemplateUser) {
                           return ListView.separated(
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       Divider(),
-                              itemCount: user.data.totalCount,
+                              itemCount: userList.data.totalCount,
                               itemBuilder: (context, index) {
                                 print("index $index");
                                 return buildUserCard(GithubUser(
@@ -204,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         "https://avatars.githubusercontent.com/u/1024025?v=4",
                                     login: "dollynho"));
                               });
-                        } else if (user
+                        } else if (userList
                             .data.githubUserList.first.isUserNotFound) {
                           return Text("User not found!");
                         } else {
@@ -213,15 +213,15 @@ class _MyHomePageState extends State<MyHomePage> {
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       Divider(),
-                              itemCount: user.data.totalCount,
+                              itemCount: userList.data.totalCount,
                               itemBuilder: (context, index) {
                                 print("index $index");
-                                print("total ${user.data.totalCount}");
+                                print("total ${userList.data.totalCount}");
                                 return buildUserCard(
-                                    user.data.githubUserList.elementAt(index));
+                                    userList.data.githubUserList.elementAt(index));
                               });
                         }
-                      } else if (user.hasError) {
+                      } else if (userList.hasError) {
                         return Column(children: [Text("Error. Try again!")]);
                       }
                       return ListView.separated(
