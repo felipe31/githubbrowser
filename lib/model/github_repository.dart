@@ -72,6 +72,7 @@ class GithubRepository   {
   final int openIssues;
   final int watchers;
   final String defaultBranch;
+  final bool isRepoNotFound;
 
   GithubRepository({
     this.id,
@@ -146,7 +147,8 @@ class GithubRepository   {
     this.forks,
     this.openIssues,
     this.watchers,
-    this.defaultBranch
+    this.defaultBranch,
+    this.isRepoNotFound = false
   });
 
   factory GithubRepository.fromJson(Map<String, dynamic> json) {

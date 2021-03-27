@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:github_browser/controller/github_api.dart';
+import 'package:github_browser/model/github_repository.dart';
 import 'package:github_browser/model/github_user.dart';
 
 class UsersRepos extends StatelessWidget {
   final GithubUser user;
-  final Future<GithubUser> _response = null;
+  Future<List<dynamic>> _response;
 
-  UsersRepos(this.user);
+  UsersRepos(this.user) {
+    this._response = GithubApi.fetchRepoList(user.reposUrl);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,42 +44,45 @@ class UsersRepos extends StatelessWidget {
           ),
         ),
         Expanded(child: () {
-          // return FutureBuilder<GithubUser>(
-          //     future: _response,
-          //     builder: (context, repos) {
-          //       if (repos.hasData) {
-          //           // TODO go back to the top of the list when textfield is edited
+          return FutureBuilder<List<dynamic>>(
+              future: _response,
+              builder: (context, dynamic) {
+                if (dynamic.hasData) {
+                    List<GithubRepository> repos = [];
+                      dynamic.data.forEach((element) {repos.add(GithubRepository.fromJson(element));});
+                    // new List<GithubRepository>.from(dynamic.data);
+                     // TODO go back to the top of the list when textfield is edited
                     return ListView.separated(
                         separatorBuilder: (BuildContext context, int index) =>
                             Divider(),
-                        itemCount: 100,
+                        itemCount: repos.length,
                         itemBuilder: (context, index) {
                           print("index $index");
                           // print("total ${repos.data}");
-                          return buildRepoCard();
+                          return buildRepoCard(repos.elementAt(index));
                         });
-          //       } else if (repos.hasError) {
-          //         return Column(children: [Text("Error. Try again!")]);
-          //       }
-          //       return ListView.separated(
-          //           separatorBuilder: (BuildContext context, int index) =>
-          //               Divider(),
-          //           itemCount: 100,
-          //           itemBuilder: (context, index) {
-          //             return Center(
-          //                 child: Container(
-          //                     padding: EdgeInsets.symmetric(
-          //                         vertical: 10, horizontal: 10),
-          //                     width: 90,
-          //                     height: 90,
-          //                     child: CircularProgressIndicator()));
-          //           });
-          //     });
+                } else if (dynamic.hasError) {
+                  return Column(children: [Text("Error. Try again!")]);
+                }
+                return ListView.separated(
+                    separatorBuilder: (BuildContext context, int index) =>
+                        Divider(),
+                    itemCount: 100,
+                    itemBuilder: (context, index) {
+                      return Center(
+                          child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              width: 90,
+                              height: 90,
+                              child: CircularProgressIndicator()));
+                    });
+              });
         }()),
       ]),
     );
   }
-  Widget buildRepoCard() {
-    return Text("Temp data");
+  Widget buildRepoCard(GithubRepository repo) {
+    return Text(repo.name);
   }
 }
