@@ -2,14 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:github_browser/controller/github_api.dart';
 import 'package:github_browser/model/github_repository.dart';
+import 'package:github_browser/model/github_repository_list.dart';
 import 'package:github_browser/model/github_user.dart';
 
 class UsersRepos extends StatelessWidget {
   final GithubUser user;
-  Future<List<dynamic>> _response;
+  Future<GithubReposList> _response;
 
   UsersRepos(this.user) {
-    this._response = GithubApi.fetchRepoList(user.reposUrl);
+    this._response = GithubReposList.fetchRepos(user.reposUrl);
   }
 
   @override
@@ -44,24 +45,22 @@ class UsersRepos extends StatelessWidget {
           ),
         ),
         Expanded(child: () {
-          return FutureBuilder<List<dynamic>>(
+          return FutureBuilder<GithubReposList>(
               future: _response,
-              builder: (context, dynamic) {
-                if (dynamic.hasData) {
-                    List<GithubRepository> repos = [];
-                      dynamic.data.forEach((element) {repos.add(GithubRepository.fromJson(element));});
+              builder: (context, repos) {
+                if (repos.hasData) {
                     // new List<GithubRepository>.from(dynamic.data);
                      // TODO go back to the top of the list when textfield is edited
                     return ListView.separated(
                         separatorBuilder: (BuildContext context, int index) =>
                             Divider(),
-                        itemCount: repos.length,
+                        itemCount: repos.data.githubRepoList.length,
                         itemBuilder: (context, index) {
                           print("index $index");
                           // print("total ${repos.data}");
-                          return buildRepoCard(repos.elementAt(index));
+                          return buildRepoCard(repos.data.githubRepoList.elementAt(index));
                         });
-                } else if (dynamic.hasError) {
+                } else if (repos.hasError) {
                   return Column(children: [Text("Error. Try again!")]);
                 }
                 return ListView.separated(
