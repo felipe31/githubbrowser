@@ -5,7 +5,6 @@ import 'package:flutter/painting.dart';
 import 'package:github_browser/model/github_user.dart';
 import 'package:github_browser/model/github_user_list.dart';
 import 'package:github_browser/view/user_repos.dart';
-import 'package:toast/toast.dart';
 
 void main() {
   runApp(MyHomePage());
@@ -115,28 +114,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         MaterialPageRoute(
                             builder: (context) => UsersRepos(user)),
                       );
-                      final snackBar = SnackBar(
-                        content: Text('Temporarily unavailable!'),
-                        // action: SnackBarAction(
-                        //   label: 'Undo',
-                        //   onPressed: () {
-                        //     // Some code to undo the change.
-                        //   },
-                        // ),
-                      );
-
-                      // Find the ScaffoldMessenger in the widget tree
-                      // and use it to show a SnackBar.
-
-                      ScaffoldMessenger.of(_scaffoldKey.currentContext)
-                          .showSnackBar(snackBar);
                     },
                   ),
                 ),
               ],
             ),
           ),
-          // ),
         ]));
   }
 
@@ -196,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       Divider(),
-                              itemCount: userList.data.totalCount,
+                              itemCount: userList.data.githubUserList.length,
                               itemBuilder: (context, index) {
                                 print("index $index");
                                 return buildUserCard(GithubUser(
@@ -213,12 +196,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       Divider(),
-                              itemCount: userList.data.totalCount,
+                              itemCount: userList.data.githubUserList.length,
                               itemBuilder: (context, index) {
                                 print("index $index");
-                                print("total ${userList.data.totalCount}");
-                                return buildUserCard(
-                                    userList.data.githubUserList.elementAt(index));
+                                print("total ${userList.data.githubUserList.length}");
+                                return buildUserCard(userList
+                                    .data.githubUserList
+                                    .elementAt(index));
                               });
                         }
                       } else if (userList.hasError) {

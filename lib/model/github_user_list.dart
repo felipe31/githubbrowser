@@ -6,53 +6,46 @@ import 'package:github_browser/model/github_user.dart';
 
 class GithubUserList {
   List<GithubUser> _githubUserList;
-  final int totalCount;
 
   List<GithubUser> get githubUserList => _githubUserList;
-  int get length => totalCount;
 
-  GithubUserList(this._githubUserList, this.totalCount);
+  GithubUserList(this._githubUserList);
 
   static Future<GithubUserList> fetchUsers(String name,
       {bool debug = false}) async {
     if (name.isEmpty) throw null;
     if (debug) {
-      return GithubUserList([GithubUser(isTemplateUser: true), GithubUser(isTemplateUser: true)], 2);
+      return GithubUserList([GithubUser(isTemplateUser: true), GithubUser(isTemplateUser: true)]);
     }
-    GithubUser usr = GithubUser(isTemplateUser: true);
-
     try {
       final json = GithubApi.fetchUserList(name);
-
       return json.then((Map<String, dynamic> json) {
-        print("->>>>>> ${json["total_count"]}");
-        if(json["total_count"] == 0) {
+        print("->>>>>> ${json["items"].length}");
+        if(json["items"].length == 0) {
           print("user not found");
-          return GithubUserList([GithubUser(isUserNotFound: true)], 1);
+          return GithubUserList([GithubUser(isUserNotFound: true)]);
         }
         List<dynamic> list = json["items"];
         List<GithubUser> users = <GithubUser>[];
-        int count = 0;
         list.forEach((element) {
-          count++;
           users.add(GithubUser.fromJson(element));
         });
-        return  GithubUserList(users, count);
+        return  GithubUserList(users);
       }).catchError(
         (err) {
           print('Caught $err');
-          return GithubUserList([GithubUser(isUserNotFound: true)], 1);
+          return GithubUserList([GithubUser(isUserNotFound: true)]);
         },
       );
 
     } catch (e) {
       if (e == 403) {
-        return GithubUserList([GithubUser(isTemplateUser: true)], 1);
+        return GithubUserList([GithubUser(isTemplateUser: true)]);
       } else if (e == 404) {
-        return GithubUserList([GithubUser(isUserNotFound: true)], 1);
+        return GithubUserList([GithubUser(isUserNotFound: true)]);
       }
     }
 
-    return GithubUserList([GithubUser(isTemplateUser: true)], 1);
+    return GithubUserList([GithubUser(isTemplateUser: true)]);
   }
 }
