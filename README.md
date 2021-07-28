@@ -2,7 +2,10 @@
 
 A simple project to learn about Flutter.
 
-The goal of this project is to search Github users and check out its repositories.
+The goal of this project is to search Github users and check the name, description and language used on user's repositories.
+
+![App execution gif](https://github.com/Felipe31/githubbrowser/blob/main/github_browser_usage.gif?raw=true)
+
 
 ## Getting Started with Flutter
 
