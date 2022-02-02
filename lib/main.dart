@@ -1,7 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 import 'package:github_browser/model/github_user.dart';
 import 'package:github_browser/model/github_user_list.dart';
 import 'package:github_browser/view/user_repos.dart';
@@ -24,9 +22,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<GithubUserList> _response;
   var _controller = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollController = ScrollController();
 
   void _searchGithub(String name) {
     setState(() {
+      if (name.isEmpty) {
+        _clear();
+        return;
+      }
+      if (name.length > 1) _scrollUp();
       this._username = name;
       print("inside searchGithub");
       _response = GithubUserList.fetchUsers(_username, debug: false);
@@ -38,6 +42,10 @@ class _MyHomePageState extends State<MyHomePage> {
       _controller.clear();
       _username = "";
     });
+  }
+
+  void _scrollUp() {
+    _scrollController.jumpTo(_scrollController.position.minScrollExtent);
   }
 
   Widget buildUserCard(user) {
@@ -147,8 +155,8 @@ class _MyHomePageState extends State<MyHomePage> {
         home: Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
-            brightness: Brightness.dark,
             title: Text("Github search"),
+            systemOverlayStyle: SystemUiOverlayStyle.light,
           ),
           body: Column(
             children: <Widget>[
@@ -168,61 +176,75 @@ class _MyHomePageState extends State<MyHomePage> {
                   onChanged: _searchGithub,
                 ),
               ),
-              Expanded(child: () {
-                if (_username.isEmpty) return Text("Insert a user name");
-                return FutureBuilder<GithubUserList>(
-                    future: _response,
-                    builder: (context, userList) {
-                      if (userList.hasData) {
-                        if (userList.data.githubUserList.first.isTemplateUser) {
+              Expanded(
+                  flex: 2,
+                  child: () {
+                    if (_username.isEmpty) return Text("Insert a user name");
+                    return FutureBuilder<GithubUserList>(
+                        future: _response,
+                        builder: (context, userList) {
+                          if (userList.hasData) {
+                            if (userList
+                                .data.githubUserList.first.isTemplateUser) {
+                              return ListView.separated(
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          Divider(),
+                                  itemCount:
+                                      userList.data.githubUserList.length,
+                                  itemBuilder: (context, index) {
+                                    print("index $index");
+                                    return buildUserCard(GithubUser(
+                                        avatarUrl:
+                                            "https://avatars.githubusercontent.com/u/1024025?v=4",
+                                        login: "dollynho"));
+                                  });
+                            } else if (userList
+                                .data.githubUserList.first.isUserNotFound) {
+                              return Text("User not found!");
+                            } else {
+                              return ListView.separated(
+                                  controller: _scrollController,
+                                  separatorBuilder:
+                                      (BuildContext context, int index) =>
+                                          Divider(),
+                                  itemCount:
+                                      userList.data.githubUserList.length,
+                                  itemBuilder: (context, index) {
+                                    print("index $index");
+                                    print(
+                                        "total ${userList.data.githubUserList.length}");
+                                    if (index == 0 ||
+                                        index ==
+                                            userList.data.githubUserList
+                                                    .length +
+                                                1)
+                                      return const SizedBox.shrink();
+                                    return buildUserCard(userList
+                                        .data.githubUserList
+                                        .elementAt(index));
+                                  });
+                            }
+                          } else if (userList.hasError) {
+                            return Column(
+                                children: [Text("Error. Try again!")]);
+                          }
                           return ListView.separated(
                               separatorBuilder:
                                   (BuildContext context, int index) =>
                                       Divider(),
-                              itemCount: userList.data.githubUserList.length,
+                              itemCount: 100,
                               itemBuilder: (context, index) {
-                                print("index $index");
-                                return buildUserCard(GithubUser(
-                                    avatarUrl:
-                                        "https://avatars.githubusercontent.com/u/1024025?v=4",
-                                    login: "dollynho"));
+                                return Center(
+                                    child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 10, horizontal: 10),
+                                        width: 90,
+                                        height: 90,
+                                        child: CircularProgressIndicator()));
                               });
-                        } else if (userList
-                            .data.githubUserList.first.isUserNotFound) {
-                          return Text("User not found!");
-                        } else {
-                          // TODO go back to the top of the list when textfield is edited
-                          return ListView.separated(
-                              separatorBuilder:
-                                  (BuildContext context, int index) =>
-                                      Divider(),
-                              itemCount: userList.data.githubUserList.length,
-                              itemBuilder: (context, index) {
-                                print("index $index");
-                                print("total ${userList.data.githubUserList.length}");
-                                return buildUserCard(userList
-                                    .data.githubUserList
-                                    .elementAt(index));
-                              });
-                        }
-                      } else if (userList.hasError) {
-                        return Column(children: [Text("Error. Try again!")]);
-                      }
-                      return ListView.separated(
-                          separatorBuilder: (BuildContext context, int index) =>
-                              Divider(),
-                          itemCount: 100,
-                          itemBuilder: (context, index) {
-                            return Center(
-                                child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 10, horizontal: 10),
-                                    width: 90,
-                                    height: 90,
-                                    child: CircularProgressIndicator()));
-                          });
-                    });
-              }()),
+                        });
+                  }()),
             ],
           ),
         ));
