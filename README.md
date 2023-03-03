@@ -1,4 +1,4 @@
-# Github Browser ![GitHub](https://img.shields.io/github/license/Felipe31/githubbrowser?style=plastic)
+# Github Browser ![GitHub](https://img.shields.io/github/license/Felipe31/githubbrowser?style=flat-square)
 
 A simple project to learn about Flutter.
 
